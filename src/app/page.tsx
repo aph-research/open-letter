@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Search, Menu, Shield } from 'lucide-react'
+import { Search, Menu, HeartHandshake } from 'lucide-react'
 import type { Signatory, FormData } from '@/app/types'
 
 const Home = () => {
@@ -116,7 +116,7 @@ const Home = () => {
         <nav className="px-6 md:px-12 py-4">
           <div className="container mx-auto flex justify-between items-center max-w-2xl 2xl:max-w-3xl">
             <a className="flex items-center hover:text-white" href="/">
-              <Shield className="mr-2 shrink-0 text-5xl" />
+              <HeartHandshake className="mr-2 shrink-0 text-5xl" />
               <h1 className="text-3xl font-serif mb-1">Open Letter</h1>
             </a>
             <div className="lg:hidden">
