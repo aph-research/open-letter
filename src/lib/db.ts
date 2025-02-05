@@ -116,7 +116,7 @@ export async function getSignatures(search?: string): Promise<Signature[]> {
       params.push(`%${sanitizedSearch}%`);
     }
 
-    query += ` ORDER BY created_at DESC`;
+    query += ` ORDER BY is_notable DESC, created_at ASC`;
     
     const result = await queryWithRetry(query, params);
     return result.rows;
