@@ -3,8 +3,8 @@
 import React, { useState } from 'react'
 import { HeartHandshake, Menu } from 'lucide-react'
 const headerStyle = {
-  backgroundImage: `linear-gradient(45deg, #4dffb8 0%, #cc66ff 50%, #ff99cc 100%),
-                     linear-gradient(135deg, transparent 0%, #00ccff99 50%, transparent 100%)`,
+  backgroundImage: `linear-gradient(45deg, #00ff66 0%, #6600ff 50%, #0066ff 100%),
+                       linear-gradient(135deg, transparent 0%, #33ffff99 50%, transparent 100%)`,
   backgroundAttachment: 'fixed',
   backgroundBlendMode: 'overlay',
   color: 'white'
