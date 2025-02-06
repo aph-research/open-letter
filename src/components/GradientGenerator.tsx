@@ -43,12 +43,7 @@ export const GradientGenerator: React.FC<Props> = ({ onGradientChange }) => {
   const copyToClipboard = () => {
     if (!currentGradient) return;
     
-    const code = `<div style={{
-  backgroundImage: \`${currentGradient.backgroundImage}\`,
-  backgroundAttachment: 'fixed',
-  backgroundBlendMode: '${currentGradient.backgroundBlendMode}',
-  color: 'white'
-}}>`;
+    const code = `backgroundImage: \`${currentGradient.backgroundImage}\``;
     
     navigator.clipboard.writeText(code);
     setCopiedToClipboard(true);

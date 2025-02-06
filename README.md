@@ -62,24 +62,6 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000) to see your application.
 
-## Project Structure
-
-```
-src/
-  ├── app/
-  │   ├── api/
-  │   │   └── signatures/
-  │   │       └── route.ts    # API endpoints for signatures
-  │   ├── components/
-  │   │   └── ui/            # UI components
-  │   ├── lib/
-  │   │   ├── db.ts         # Database utilities
-  │   │   └── email.ts      # Email functionality
-  │   └── types/
-  │       └── index.ts      # TypeScript types
-  └── page.tsx              # Main page component
-```
-
 ## API Endpoints
 
 ### GET /api/signatures
