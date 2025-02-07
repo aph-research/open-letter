@@ -119,7 +119,7 @@ export async function verifySignature(token: string): Promise<Signature | null> 
 
 export const testConnection = async (): Promise<boolean> => {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase  // Remove 'data' from destructuring
       .from('signatures')
       .select('count')
       .limit(1)
