@@ -10,7 +10,7 @@ export async function sendVerificationEmail(email: string, name: string, token: 
   const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify?token=${token}`;
   
   const mailOptions = {
-    from: 'alfredo@qri.org', // Replace with your verified email
+    from: 'alfredo@qri.org', // Make sure this is your verified SendGrid sender email
     to: email,
     subject: 'Verify your signature',
     text: `Hello ${name},\n\nThank you for signing our open letter. Please click the link below to verify your signature:\n\n${verificationUrl}\n\nIf you didn't sign this open letter, please ignore this email.\n\nBest regards,\nThe Open Letter Team`,
