@@ -1,8 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Search, Menu, HeartHandshake } from 'lucide-react'
+import { Search, HeartHandshake } from 'lucide-react'
 import type { Signatory, FormData } from '@/app/types'
 import { GradientGenerator } from '@/components/GradientGenerator'
 import type { GradientStyle } from '@/app/types/gradient'
@@ -23,7 +24,7 @@ export function HomeContent() {
   const [signatories, setSignatories] = useState<Signatory[]>([])
   const [filteredSignatories, setFilteredSignatories] = useState<Signatory[]>([])
   const [totalConfirmed, setTotalConfirmed] = useState(0)
-  const [isSearching, setIsSearching] = useState(false)
+  const [isSearching] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState<FormData>({
@@ -137,13 +138,13 @@ export function HomeContent() {
         {/* Navigation */}
         <nav className="px-6 md:px-12 py-4">
           <div className="container mx-auto flex justify-between items-center max-w-2xl 2xl:max-w-3xl">
-            <a className="flex items-center hover:text-white" href="/">
+            <Link className="flex items-center hover:text-white" href="/">
               <HeartHandshake className="mr-2 shrink-0" size={40} />
-            </a>
+            </Link>
             <div className="flex items-center gap-4">
-              <a className="text-xl lg:text-base hover:text-blue-300 px-4 text-white" href="/about">
+              <Link className="text-xl lg:text-base hover:text-blue-300 px-4 text-white" href="/about">
                 About
-              </a>
+              </Link>
             </div>
           </div>
         </nav>

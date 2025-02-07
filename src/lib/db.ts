@@ -1,170 +1,137 @@
-import { Pool } from 'pg';
-import { Signature } from '../app/types';
+import { createClient } from '@supabase/supabase-js'
+import type { Signature } from '@/app/types'
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? {
-    rejectUnauthorized: false
-  } : undefined,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
-
-// Connection event handlers
-pool.on('connect', () => {
-  console.log('Database connected successfully');
-});
-
-pool.on('error', (err) => {
-  console.error('Unexpected database error:', err);
-});
-
-// Test connection function
-export async function testConnection(): Promise<boolean> {
-  try {
-    const client = await pool.connect();
-    try {
-      const result = await client.query('SELECT NOW()');
-      console.log('Database connection test successful:', result.rows[0]);
-      return true;
-    } finally {
-      client.release();
-    }
-  } catch (err) {
-    console.error('Database connection test failed:', err);
-    return false;
-  }
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+  throw new Error('Missing SUPABASE_URL environment variable')
 }
 
-// Retry wrapper for database queries
-async function queryWithRetry(
-  query: string, 
-  params: any[] = [], 
-  maxRetries = 3
-) {
-  let lastError;
-  
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      const client = await pool.connect();
-      try {
-        const result = await client.query(query, params);
-        return result;
-      } finally {
-        client.release();
-      }
-    } catch (err) {
-      console.error(`Database query attempt ${i + 1} failed:`, err);
-      lastError = err;
-      if (i < maxRetries - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
-      }
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable')
+}
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  {
+    auth: {
+      persistSession: false
     }
   }
-  
-  throw lastError;
-}
+)
 
 export async function createSignature(data: Omit<Signature, 'id' | 'created_at' | 'verified_at'>): Promise<Signature> {
-  const { name, email, job_title, affiliation, honors, is_notable, verification_token, status } = data;
-  
-  try {
-    const result = await queryWithRetry(
-      `INSERT INTO signatures 
-       (name, email, job_title, affiliation, honors, is_notable, verification_token, status) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
-       RETURNING *`,
-      [name, email, job_title, affiliation, honors, is_notable, verification_token, status]
-    );
-    
-    return result.rows[0];
-  } catch (err) {
-    console.error('Error creating signature:', err);
-    throw err;
+  const { data: signature, error } = await supabase
+    .from('signatures')
+    .insert([{
+      name: data.name,
+      email: data.email,
+      job_title: data.job_title,
+      affiliation: data.affiliation,
+      honors: data.honors,
+      is_notable: data.is_notable,
+      verification_token: data.verification_token,
+      status: data.status
+    }])
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating signature:', error)
+    throw error
   }
+
+  return signature
 }
 
 export async function getSignatureByEmail(email: string): Promise<Signature | null> {
-  try {
-    const result = await queryWithRetry(
-      'SELECT * FROM signatures WHERE email = $1',
-      [email]
-    );
-    
-    return result.rows[0] || null;
-  } catch (err) {
-    console.error('Error getting signature by email:', err);
-    throw err;
+  const { data: signature, error } = await supabase
+    .from('signatures')
+    .select()
+    .eq('email', email)
+    .single()
+
+  if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+    console.error('Error getting signature by email:', error)
+    throw error
   }
+
+  return signature
 }
 
 export async function getSignatures(search?: string): Promise<Signature[]> {
   try {
-    let query = 'SELECT * FROM signatures WHERE status = $1';
-    const params: any[] = ['verified'];
+    let query = supabase
+      .from('signatures')
+      .select()
+      .eq('status', 'verified')
+      .order('is_notable', { ascending: false })
+      .order('created_at', { ascending: true })
 
     if (search) {
-      // Sanitize search input
-      const sanitizedSearch = search.replace(/[%_]/g, '\\$&');
-      query += ` AND (
-        name ILIKE $2 OR 
-        COALESCE(job_title, '') ILIKE $2 OR 
-        COALESCE(affiliation, '') ILIKE $2 OR
-        COALESCE(honors, '') ILIKE $2
-      )`;
-      params.push(`%${sanitizedSearch}%`);
+      query = query.or(`name.ilike.%${search}%,job_title.ilike.%${search}%,affiliation.ilike.%${search}%,honors.ilike.%${search}%`)
     }
 
-    query += ` ORDER BY is_notable DESC, created_at ASC`;
-    
-    const result = await queryWithRetry(query, params);
-    return result.rows;
-  } catch (err) {
-    console.error('Error getting signatures:', err);
-    throw err;
+    const { data: signatures, error } = await query
+
+    if (error) {
+      console.error('Supabase error getting signatures:', error)
+      throw error
+    }
+
+    console.log('Successfully fetched signatures:', signatures?.length || 0)
+    return signatures || []
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('Error in getSignatures:', err.message)
+      throw err
+    }
+    throw new Error('Unknown error in getSignatures')
   }
 }
 
 export async function verifySignature(token: string): Promise<Signature | null> {
   try {
-    const result = await queryWithRetry(
-      `UPDATE signatures 
-       SET status = 'verified', 
-           verified_at = CURRENT_TIMESTAMP 
-       WHERE verification_token = $1 
-       AND status = 'pending' 
-       RETURNING *`,
-      [token]
-    );
-    return result.rows[0] || null;
-  } catch (err) {
-    console.error('Error verifying signature:', err);
-    throw err;
+    const { data: signature, error } = await supabase
+      .from('signatures')
+      .update({
+        status: 'verified',
+        verified_at: new Date().toISOString()
+      })
+      .eq('verification_token', token)
+      .eq('status', 'pending')
+      .select()
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error verifying signature:', error)
+      throw error
+    }
+
+    return signature
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('Error in verifySignature:', err.message)
+      throw err
+    }
+    throw new Error('Unknown error in verifySignature')
   }
 }
 
-// Cleanup function for graceful shutdown
-let isClosing = false;
-
-export async function cleanup(): Promise<void> {
-  if (isClosing) return; // Prevent multiple cleanup attempts
-  
-  isClosing = true;
+export const testConnection = async (): Promise<boolean> => {
   try {
-    await pool.end();
-    console.log('Database pool closed successfully');
-  } catch (err) {
-    console.error('Error closing database pool:', err);
-    // Don't throw error here, just log it
+    const { data, error } = await supabase
+      .from('signatures')
+      .select('count')
+      .limit(1)
+    
+    if (error) throw error
+    return true
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('Database connection test failed:', err.message)
+    } else {
+      console.error('Database connection test failed with unknown error')
+    }
+    return false
   }
 }
-
-// Handle cleanup on process termination
-process.once('SIGTERM', cleanup);
-process.once('SIGINT', cleanup);
-
-// Test connection on startup
-testConnection().catch(console.error);
-
-export { pool };

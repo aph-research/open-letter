@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
-import { HeartHandshake, Menu } from 'lucide-react'
+import Link from 'next/link'
+import React from 'react'
+import { HeartHandshake } from 'lucide-react'
 const headerStyle = {
   backgroundImage: `linear-gradient(45deg, #00ff66 0%, #6600ff 50%, #0066ff 100%),
                        linear-gradient(135deg, transparent 0%, #33ffff99 50%, transparent 100%)`,
@@ -18,13 +19,13 @@ export function AboutContent() {
         {/* Navigation */}
         <nav className="px-6 md:px-12 py-4">
           <div className="container mx-auto flex justify-between items-center max-w-2xl 2xl:max-w-3xl">
-            <a className="flex items-center hover:text-white" href="/">
+            <Link className="flex items-center hover:text-white" href="/">
               <HeartHandshake className="mr-2 shrink-0" size={40} />
-            </a>
+            </Link>
             <div className="flex items-center gap-4">
-                <a className="text-xl lg:text-base hover:text-blue-300 px-4 text-white" href="/about">
+                <Link className="text-xl lg:text-base hover:text-blue-300 px-4 text-white" href="/about">
                     About
-                </a>
+                </Link>
             </div>
           </div>
         </nav>

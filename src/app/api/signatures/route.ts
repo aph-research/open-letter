@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { createSignature, getSignatures, getSignatureByEmail, verifySignature } from '@/lib/db';
 import { sendVerificationEmail } from '@/lib/email';
-import type { Signatory, Signature } from '@/app/types';
+import type { Signature } from '@/app/types';
 
 // API request/response types
 interface CreateSignatureRequest {
@@ -92,20 +92,23 @@ function validateCreateSignatureRequest(data: unknown): data is CreateSignatureR
 export async function GET(request: NextRequest) {
   try {
     const search = request.nextUrl.searchParams.get('search') || '';
+    console.log('Fetching signatures with search:', search);
+    
     const signatures = await getSignatures(search);
+    console.log('Retrieved signatures count:', signatures.length);
     
     // Convert dates to ISO strings
-    const formattedSignatures: Signatory[] = signatures.map(sig => ({
+    const formattedSignatures = signatures.map(sig => ({
       ...sig,
-      created_at: sig.created_at.toISOString(),
-      verified_at: sig.verified_at?.toISOString()
+      created_at: sig.created_at ? new Date(sig.created_at).toISOString() : null,
+      verified_at: sig.verified_at ? new Date(sig.verified_at).toISOString() : null
     }));
     
-    return NextResponse.json<Signatory[]>(formattedSignatures);
+    return NextResponse.json(formattedSignatures);
   } catch (error) {
-    console.error('Error fetching signatures:', error);
-    return NextResponse.json<ErrorResponse>(
-      { error: 'Failed to fetch signatures' },
+    console.error('Detailed error in GET signatures:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Failed to fetch signatures' },
       { status: 500 }
     );
   }
@@ -122,7 +125,10 @@ export async function POST(request: NextRequest) {
         { error: 'Too many requests. Please try again later.' },
         { 
           status: 429,
-          headers: { 'Retry-After': RATE_LIMIT_WINDOW.toString() }
+          headers: {
+            'Retry-After': RATE_LIMIT_WINDOW.toString(),
+            'X-RateLimit-Remaining': remaining.toString()
+          }
         }
       );
     }
