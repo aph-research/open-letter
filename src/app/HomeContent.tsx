@@ -239,9 +239,9 @@ export function HomeContent() {
                           </div>
                         </div>
                         <div className="flex flex-wrap -mx-2">
-                          <div className="w-full md:w-1/2 px-2">
+                          <div className="w-full px-2">
                             <label className="block text-gray-800 font-semibold mb-1">
-                              Job Title(s) / Position (s) and Affiliation(s)
+                              Position(s) and Affiliation(s)
                             </label>
                             <input
                               type="text"
@@ -253,7 +253,7 @@ export function HomeContent() {
                           </div>
                         </div>
                         <div className="flex flex-wrap -mx-2">
-                          <div className="w-full md:w-1/2 px-2">
+                          <div className="w-full px-2">
                             <label className="block text-gray-800 font-semibold mb-1">
                               Noteworthy Honors
                             </label>
