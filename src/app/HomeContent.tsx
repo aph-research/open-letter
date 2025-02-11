@@ -30,8 +30,7 @@ export function HomeContent() {
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
-    job_title: '',
-    affiliation: '',
+    position: '',
     honors: ''
   })
   const [headerGradient, setHeaderGradient] = useState<GradientStyle>(defaultGradient)
@@ -70,7 +69,7 @@ export function HomeContent() {
   // Filter signatories based on search term
   useEffect(() => {
     const filtered = signatories.filter(sig => 
-      [sig.name, sig.job_title, sig.affiliation, sig.honors]
+      [sig.name, sig.position, sig.honors]
         .filter((field): field is string => field !== undefined && field !== null)
         .some(field => field.toLowerCase().includes(searchTerm.toLowerCase()))
     )
@@ -119,8 +118,7 @@ export function HomeContent() {
       setFormData({
         name: '',
         email: '',
-        job_title: '',
-        affiliation: '',
+        position: '',
         honors: ''
       })
       setClaimsNotable(false)
@@ -243,24 +241,12 @@ export function HomeContent() {
                         <div className="flex flex-wrap -mx-2">
                           <div className="w-full md:w-1/2 px-2">
                             <label className="block text-gray-800 font-semibold mb-1">
-                              Job Title / Position
+                              Job Title(s) / Position (s) and Affiliation(s)
                             </label>
                             <input
                               type="text"
-                              name="job_title"
-                              value={formData.job_title}
-                              onChange={handleInputChange}
-                              className="w-full border border-gray-300 p-2 rounded"
-                            />
-                          </div>
-                          <div className="w-full md:w-1/2 px-2">
-                            <label className="block text-gray-800 font-semibold mb-1">
-                              Affiliation
-                            </label>
-                            <input
-                              type="text"
-                              name="affiliation"
-                              value={formData.affiliation}
+                              name="position"
+                              value={formData.position}
                               onChange={handleInputChange}
                               className="w-full border border-gray-300 p-2 rounded"
                             />
@@ -349,8 +335,7 @@ export function HomeContent() {
                                 {signatory.name}
                               </span>
                               <span className="text-sm md:text-base">
-                                {signatory.job_title}
-                                {signatory.affiliation && `, ${signatory.affiliation}`}
+                                {signatory.position}
                                 {signatory.honors && `, ${signatory.honors}`}
                               </span>
                             </li>

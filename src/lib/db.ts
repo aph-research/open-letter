@@ -25,8 +25,7 @@ export async function createSignature(data: Omit<Signature, 'id' | 'created_at' 
     .insert([{
       name: data.name,
       email: data.email,
-      job_title: data.job_title,
-      affiliation: data.affiliation,
+      position: data.position,
       honors: data.honors,
       is_notable: data.is_notable,
       verification_token: data.verification_token,
@@ -68,7 +67,7 @@ export async function getSignatures(search?: string): Promise<Signature[]> {
       .order('created_at', { ascending: true })
 
     if (search) {
-      query = query.or(`name.ilike.%${search}%,job_title.ilike.%${search}%,affiliation.ilike.%${search}%,honors.ilike.%${search}%`)
+      query = query.or(`name.ilike.%${search}%,position.ilike.%${search}%,honors.ilike.%${search}%`)
     }
 
     const { data: signatures, error } = await query

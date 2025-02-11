@@ -3,8 +3,7 @@ export interface Signatory {
   id: number
   name: string
   email: string
-  job_title?: string
-  affiliation?: string
+  position?: string
   honors?: string
   status: 'pending' | 'verified' | 'rejected'
   created_at: string
@@ -17,8 +16,7 @@ export interface Signature {
   id: number
   name: string
   email: string
-  job_title?: string
-  affiliation?: string
+  position?: string
   honors?: string
   status: 'pending' | 'verified' | 'rejected'
   created_at: Date
@@ -31,18 +29,17 @@ export interface Signature {
 export interface CreateSignatureRequest {
   name: string
   email: string
-  job_title?: string
-  affiliation?: string
+  position?: string
   honors?: string
   isNotable?: boolean
   verification_token?: string
   status?: 'pending' | 'verified' | 'rejected'
 }
 
+// Form data type
 export interface FormData {
   name: string
   email: string
-  job_title: string
-  affiliation: string
+  position: string
   honors: string
 }

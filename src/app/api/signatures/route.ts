@@ -8,8 +8,7 @@ import type { Signature } from '@/app/types';
 interface CreateSignatureRequest {
   name: string;
   email: string;
-  job_title?: string;
-  affiliation?: string;
+  position?: string;
   honors?: string;
   isNotable?: boolean;
 }
@@ -77,13 +76,12 @@ function validateEmail(email: string): boolean {
 function validateCreateSignatureRequest(data: unknown): data is CreateSignatureRequest {
   if (!data || typeof data !== 'object') return false;
   
-  const { name, email, job_title, affiliation, honors, isNotable } = data as Record<string, unknown>;
+  const { name, email, position, honors, isNotable } = data as Record<string, unknown>;
   
   return (
     typeof name === 'string' && name.length > 0 &&
     typeof email === 'string' && validateEmail(email) &&
-    (job_title === undefined || typeof job_title === 'string') &&
-    (affiliation === undefined || typeof affiliation === 'string') &&
+    (position === undefined || typeof position === 'string') &&
     (honors === undefined || typeof honors === 'string') &&
     (isNotable === undefined || typeof isNotable === 'boolean')
   );
@@ -143,7 +141,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, job_title, affiliation, honors, isNotable } = body;
+    const { name, email, position, honors, isNotable } = body;
 
     // Check for existing signature
     const existingSignature = await getSignatureByEmail(email);
@@ -159,8 +157,7 @@ export async function POST(request: NextRequest) {
     const signature = await createSignature({
       name,
       email,
-      job_title,
-      affiliation,
+      position,
       honors,
       is_notable: isNotable || false,
       verification_token: verificationToken,
