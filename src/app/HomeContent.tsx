@@ -150,9 +150,12 @@ export function HomeContent() {
         {/* Header */}
         <header className="mx-auto flex flex-col mb-10 pt-24 pb-12 px-6 md:pt-32 md:pb-16 md:px-12 justify-end relative">
           <div className="container mx-auto max-w-2xl 2xl:max-w-3xl">
-            <h1 className="text-2xl md:text-4xl 2xl:text-5xl font-semibold tracking-normal mb-[-1rem]" style={{lineHeight: "1.2"}}>
-              Addressing Neglected Human Suffering: A Joint Appeal
+            <h1 className="text-2xl md:text-4xl 2xl:text-5xl font-semibold tracking-normal" style={{lineHeight: "1.2"}}>
+              Legal Access to Psychedelics to End the Agony of Cluster Headaches
             </h1>
+            <h3 className="text-xl md:text-2xl 2xl:text-3xl font-semibold tracking-normal mt-4 md:mt-6 mb-[-2rem]" style={{lineHeight: "1.2"}}>
+              An Open Letter
+            </h3>
             <div className="absolute bottom-4 right-6 md:right-12 flex gap-2">
               <GradientGenerator onGradientChange={setHeaderGradient} />
             </div>
